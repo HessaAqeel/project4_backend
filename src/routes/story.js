@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 // Get all stories 
-router.get("/stories", tokenAuth, (req, res, next) => {
+router.get("/stories", (req, res, next) => {
   // start a promise chain, so that any errors will pass to `handle`
   models.Story.findAll()
     .then(stories => {
@@ -19,7 +19,7 @@ router.get("/stories", tokenAuth, (req, res, next) => {
 });
 
 // Get a story by its ID 
-router.get("/story/:id", tokenAuth, (req, res) => {
+router.get("/story/:id", (req, res) => {
   models.Story.findByPk(req.params.id).then(story => {
     res.status(200).json({ story: story });
   })
@@ -45,7 +45,7 @@ router.post("/story", (req, res) => {
 });
 
 // Edit an existing story 
-router.put('/story/:id', (req, res) => {
+router.put('/story/:id', tokenAuth, (req, res) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
       story.update({
@@ -59,7 +59,7 @@ router.put('/story/:id', (req, res) => {
 });
 
 // Delete an existing article 
-router.delete('/story/:id', (req, res) => {
+router.delete('/story/:id', tokenAuth, (req, res) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
       story.destroy().then(() => {
