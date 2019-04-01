@@ -14,6 +14,26 @@ const User = models.User;
 // instantiate a router (mini app that only handles routes)
 const router = express.Router();
 
+
+// router.get("/user/:id"),
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     if (!isNaN(req.params.id)) {
+//       models.User.findByPk(req.params.id)
+//         .then(user => {
+//           if (user !== null) {
+//             res.status(200).json({ user: user });
+//           } else {
+//             res.status(404).json({ error: "Person Not Found" });
+//           }
+//         })
+//         .catch(e => console.log(e));
+//     } else {
+//       res.status(406).json({ error: "Invalid ID" });
+//     }
+//   }
+
+
 router.post("/sign-up", (req, res, next) => {
   // start a promise chain, so that any errors will pass to `handle`
   Promise.resolve(req.body.credentials)
@@ -55,7 +75,7 @@ router.post("/sign-up", (req, res, next) => {
       });
     })
     // pass any errors along to the error handler
-    .catch(next);
+    .catch(e => next());
 });
 
 router.post("/sign-in", localAuth, (req, res, next) => {
@@ -106,7 +126,7 @@ router.patch("/change-password", tokenAuth, (req, res, next) => {
         throw new BadParamsError();
       }
     })
-    .catch(next);
+    .catch(e => next());
 });
 
 export default router;

@@ -26,9 +26,9 @@ router.get("/story/:id", (req, res) => {
     .catch(e => console.log(e));
 });
 
-// // MVP 2 
+// Get all stories posted by one user 
 // router.get('/user/:id/stories', (req, res) => {
-//   models.User.findByPk(req.params.id, { include: [{ model: models.Story, }] }).then(user => {
+//   models.User.findByPk(req.params.id, { include: [{ model: models.User, }] }).then(user => {
 //     // when calling one person by id --> an object of that perosn will show ; when using include: [{ model: Article }] --> the articles related to that peron appears
 //     res.status(200).json({ user: user })
 //   }).catch(e => console.log(e));
@@ -45,7 +45,7 @@ router.post("/story", (req, res) => {
 });
 
 // Edit an existing story 
-router.put('/story/:id', tokenAuth, (req, res) => {
+router.put('/story/:id', (req, res) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
       story.update({
@@ -59,7 +59,7 @@ router.put('/story/:id', tokenAuth, (req, res) => {
 });
 
 // Delete an existing article 
-router.delete('/story/:id', tokenAuth, (req, res) => {
+router.delete('/story/:id', (req, res) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
       story.destroy().then(() => {
@@ -72,5 +72,7 @@ router.delete('/story/:id', tokenAuth, (req, res) => {
     })
     .catch(e => console.log(e));
 });
+
+
 
 export default router;

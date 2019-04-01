@@ -13,14 +13,14 @@ export default (err, req, res, next) => {
   }
 
   // HTTP RESPONSES
-
   // there are `ValidationError`s and `ValidatorErrors`, so use a regex
   // to catch them both
   if (err.name.match(/Valid/) || err.name === "SequelizeValidationError") {
     // if the error came from trying to create a user that already exists,
     // the error message will contain a bunch of data about that user.
     // That's a major vulnerability, so we need to send back a custom message
-    const message = "The receieved params failed a Mongoose validation";
+    const message = "The receieved params failed to validat";
+
     err = { status: 422, message };
   } else if (err.name === "DocumentNotFoundError") {
     err.status = 404;
@@ -28,6 +28,10 @@ export default (err, req, res, next) => {
     err.status = 422;
   } else if (err.name === "BadCredentialsError") {
     err.status = 401;
+  } else if (err.name === "SequelizeUniqueConstraintError") {
+    const message = "Please enter a Unique value";
+
+    err = { status: 422, message };
   }
 
   // if set a status code above, send that status code
