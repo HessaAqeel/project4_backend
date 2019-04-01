@@ -65,5 +65,6 @@ export {
   handle404,
   BadParamsError,
   BadCredentialsError,
-  JWTExpiredError
+  JWTExpiredError,
+  OwnershipError
 };

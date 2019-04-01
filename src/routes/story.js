@@ -3,6 +3,7 @@ import passport from "passport";
 import models from "../db/models";
 const tokenAuth = passport.authenticate("jwt", { session: false });
 const User = models.User;
+import { OwnershipError } from "../lib/custom_errors";
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router();
@@ -26,14 +27,7 @@ router.get("/story/:id", (req, res) => {
     .catch(e => console.log(e));
 });
 
-// Get all stories posted by one user 
-// router.get('/user/:id/stories', (req, res) => {
-//   models.User.findByPk(req.params.id, { include: [{ model: models.User, }] }).then(user => {
-//     // when calling one person by id --> an object of that perosn will show ; when using include: [{ model: Article }] --> the articles related to that peron appears
-//     res.status(200).json({ user: user })
-//   }).catch(e => console.log(e));
 
-// });
 
 // Post a new Story 
 router.post("/story", (req, res) => {
@@ -44,33 +38,76 @@ router.post("/story", (req, res) => {
     .catch(e => console.log(e));
 });
 
-// Edit an existing story 
-router.put('/story/:id', (req, res) => {
+
+// router.put('/story/:id', (req, res) => {
+//   models.Story.findByPk(req.params.id)
+//     .then(story => {
+//       story.update({
+//         title: req.body.title,
+//         body: req.body.body
+//       }).then(story => {
+//         res.status(200).json({ story: story });
+//       })
+//     }).catch(e => console.log(e))
+//     .catch(e => console.log(e));
+// });
+
+
+// Edit an existing story / only with an authorized user 
+router.put('/story/:id', tokenAuth, (req, res, next) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
-      story.update({
-        title: req.body.title,
-        body: req.body.body
-      }).then(story => {
-        res.status(200).json({ story: story });
-      })
+      if (story) {
+        console.log(story.get({ plain: true }))
+        if (story.author === req.user.id) {
+          return story.update({
+            title: req.body.title,
+            body: req.body.body
+          })
+        } else {
+          throw new OwnershipError()
+        }
+      }
+    }).then(story => {
+      res.status(200).json({ story: story });
     }).catch(e => console.log(e))
-    .catch(e => console.log(e));
+})
+
+
+
+
+
+// Delete an existing article / only the user with the same Id is able to do so 
+router.delete('/story/:id', tokenAuth, (req, res, next) => {
+
+  models.Story.findByPk(req.params.id)
+    .then(story => {
+
+      if (story) {
+        console.log(story.get({ plain: true }))
+        if (story.author === req.user.id) {
+          return story.destroy();
+        } else {
+          throw new OwnershipError()
+        }
+      }
+    })
+    .then(() => {
+      res.status(200).json({
+        result: ` Story ID ${req.params.id} has been deleted`,
+        success: true
+      })
+    })
+    .catch(e => next());
 });
 
-// Delete an existing article 
-router.delete('/story/:id', (req, res) => {
-  models.Story.findByPk(req.params.id)
-    .then(story => {
-      story.destroy().then(() => {
-        res.status(200).json({
-          result: ` Story ID ${req.params.id} has been deleted`,
-          success: true
-        });
-      })
-        .catch(e => console.log(e));
-    })
-    .catch(e => console.log(e));
+// Get all stories posted by one user 
+router.get('/user/:id/stories', (req, res) => {
+  models.User.findByPk(req.params.id, { include: [{ model: models.Story, as: "stories" }] }).then(user => {
+    // when calling one person by id --> an object of that perosn will show ; when using include: [{ model: Article }] --> the articles related to that peron appears
+    res.status(200).json({ user: user })
+  }).catch(e => console.log(e));
+
 });
 
 

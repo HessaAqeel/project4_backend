@@ -3,7 +3,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 
 // pull in error types and the logic to handle them and set status codes
-import { BadParamsError } from "../lib/custom_errors";
+import { requireOwnership } from "../lib/custom_errors";
 
 import models from "./../db/models";
 
@@ -15,24 +15,6 @@ const User = models.User;
 const router = express.Router();
 
 
-// router.get("/user/:id"),
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     if (!isNaN(req.params.id)) {
-//       models.User.findByPk(req.params.id)
-//         .then(user => {
-//           if (user !== null) {
-//             res.status(200).json({ user: user });
-//           } else {
-//             res.status(404).json({ error: "Person Not Found" });
-//           }
-//         })
-//         .catch(e => console.log(e));
-//     } else {
-//       res.status(406).json({ error: "Invalid ID" });
-//     }
-//   }
-
 
 router.post("/sign-up", (req, res, next) => {
   // start a promise chain, so that any errors will pass to `handle`
@@ -43,7 +25,7 @@ router.post("/sign-up", (req, res, next) => {
         !credentials.password ||
         credentials.password !== credentials.password_confirmation
       ) {
-        throw new BadParamsError();
+        throw requireOwnership();
       } else {
         return User.create({
           email: credentials.email,
