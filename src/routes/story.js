@@ -30,7 +30,7 @@ router.get("/story/:id", (req, res) => {
 
 
 // Post a new Story 
-router.post("/story", (req, res) => {
+router.post("/story", tokenAuth, (req, res) => {
   models.Story.create(req.body)
     .then(story => {
       res.status(201).json(({ story: story }))
@@ -54,6 +54,7 @@ router.post("/story", (req, res) => {
 
 
 // Edit an existing story / only with an authorized user 
+
 router.put('/story/:id', tokenAuth, (req, res, next) => {
   models.Story.findByPk(req.params.id)
     .then(story => {
@@ -105,7 +106,7 @@ router.delete('/story/:id', tokenAuth, (req, res, next) => {
 router.get('/user/:id/stories', (req, res) => {
   models.User.findByPk(req.params.id, { include: [{ model: models.Story, as: "stories" }] }).then(user => {
     // when calling one person by id --> an object of that perosn will show ; when using include: [{ model: Article }] --> the articles related to that peron appears
-    res.status(200).json({ user: user })
+    res.status(200).json({ stories: user.stories })
   }).catch(e => console.log(e));
 
 });
