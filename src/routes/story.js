@@ -62,8 +62,8 @@ router.put('/story/:id', tokenAuth, (req, res, next) => {
         console.log(story.get({ plain: true }))
         if (story.author === req.user.id) {
           return story.update({
-            title: req.body.title,
-            body: req.body.body
+            title: req.body.story.title,
+            body: req.body.story.body
           })
         } else {
           throw new OwnershipError()
